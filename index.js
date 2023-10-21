@@ -13,7 +13,7 @@ exports.postImageLambdaHandler = async (event, context, callback) => {
   const requiredFormat = (ext === 'jpg') ? 'jpeg' : ext;
 
   try{
-    const s3Object = await s3.getObject({ Bucket, Key}).toPromise();
+    const s3Object = await s3.getObject({ Bucket, Key}).toPromise().promise();
     console.log('fileSize', s3Object.Body.length);
     const resizedImage = await sharp(s3Object.Body)
       .resize(400, 400, {fit: 'inside'})
@@ -21,17 +21,11 @@ exports.postImageLambdaHandler = async (event, context, callback) => {
       .toBuffer();
     await s3.putObject({
       Bucket,
-      Key: (prefix === 'postImages') ? `resizedPostImages/${filename}`:`resizedUserProfileImages/${filename}`,
+      Key:`resizedPostImages/${filename}`,
       Body: resizedImage,
-    }).toPromise();
+    }).promise();
     console.log('put',resizedImage.length);
-    return callback(
-      null,
-      (prefix === "postImages")
-        ? `resizedPostImages/${filename}`
-        : `resizedUserProfileImages/${filename}`
-    );
-
+    return callback(null, `resizedPostImages/${filename}`);
   }catch(err){
     console.error(err);
     return callback(err);
