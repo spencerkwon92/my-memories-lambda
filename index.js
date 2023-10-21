@@ -13,7 +13,7 @@ exports.postImageLambdaHandler = async (event, context, callback) => {
   const requiredFormat = (ext === 'jpg') ? 'jpeg' : ext;
 
   try{
-    const s3Object = await s3.getObject({ Bucket, Key}).toPromise().promise();
+    const s3Object = await s3.getObject({ Bucket, Key}).promise();
     console.log('fileSize', s3Object.Body.length);
     const resizedImage = await sharp(s3Object.Body)
       .resize(400, 400, {fit: 'inside'})
